@@ -67,6 +67,7 @@ const ScrapingForm = ({values,setValues,handleChange,onSubmit}) => {
                             onChange={handleChangeDate}
                             defaultValue={[moment(today, dateFormat), moment(today, dateFormat)]}
                             format={dateFormat}
+                            inputReadOnly
                             />
 
                         </div>
