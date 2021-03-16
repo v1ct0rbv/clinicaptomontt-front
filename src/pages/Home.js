@@ -60,8 +60,6 @@ const Home = () => {
             console.log(res.data)
         })
         .catch( err=> {
-            setTimeout(console.log('Sracping listo'),10000)
-            window.location.reload();
             setLoading(false)
             console.log(err)
         })
