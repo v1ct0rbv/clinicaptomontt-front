@@ -1,4 +1,4 @@
-import React,{useEffect,lazy,Suspense} from 'react'
+import React,{useEffect, Fragment} from 'react'
 import {Switch,Route} from 'react-router-dom'
 import { ToastContainer} from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -9,9 +9,9 @@ import {auth} from './firebase'
 import {useDispatch} from 'react-redux'
 
 //using lazy
-const Home = lazy(() => import('./pages/Home'))
-const Header = lazy(() => import('./components/nav/Header'))
-const Login = lazy(() => import('./pages/auth/Login'))
+import Home from './pages/Home'
+import Header from './components/nav/Header'
+import Login from './pages/auth/Login'
 
 
 
@@ -42,18 +42,14 @@ const App = () => {
 
 
   return (
-    <Suspense fallback={
-      <div className='col text-center p-5'>
-        <img src={Spinner} alt='loader'/>
-      </div>
-    }>
+    <Fragment>
     <Header />
     <ToastContainer/>
     <Switch>
       <Route exact path='/' component={Login} />
       <Route exact path="/agenda" component={Home} />
     </Switch>
-    </Suspense>
+    </Fragment>
   );
 }
 

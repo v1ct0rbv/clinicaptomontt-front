@@ -14,7 +14,6 @@ const scrapingData = {
     fechaFin:''
 }
 
-
 const consultaState = {
     tipoConsulta:'CONSULTA MÉDICA PRESENCIAL',
     estado:["Confirmado","Atendido ","Presentado","Citado"]
