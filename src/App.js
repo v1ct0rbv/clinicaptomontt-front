@@ -12,7 +12,7 @@ import {useDispatch} from 'react-redux'
 import Home from './pages/Home'
 import Header from './components/nav/Header'
 import Login from './pages/auth/Login'
-
+import UserRoute from './components/route/UserRoute'
 
 
 
@@ -47,7 +47,7 @@ const App = () => {
     <ToastContainer/>
     <Switch>
       <Route exact path='/' component={Login} />
-      <Route exact path="/agenda" component={Home} />
+      <UserRoute exact path="/agenda" component={Home} />
     </Switch>
     </Fragment>
   );
