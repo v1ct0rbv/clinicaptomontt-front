@@ -36,7 +36,6 @@ const Home = () => {
         getAgendados()
         .then(res =>{
             setAgendados(res.data)
-            console.log(res.data)
         }) 
         .catch(err =>{
             console.log(err)
@@ -282,6 +281,22 @@ const Home = () => {
   
     var max_array_eje = Number(Math.max.apply(Math,getCol(data2,2)))
 
+
+    //totales por dia
+    var diasIndex = uniqueValues(data.map(c =>{
+        return c[0]
+    }))
+    var count = 0
+    var totalesPordia = diasIndex.map(d=>{
+        var x = Number((data.filter(s => s[0] === d).map(c=>{
+            count = Number(c[2]) + count
+            return count
+        })).slice(-1))
+        var fecha = fechasP[d]
+        count = 0
+        return [fecha,x]
+    })
+
     //data para heatmap
     data = data.map(function (item) {
         return [item[0], item[1], item[2] || '-'];
@@ -418,7 +433,6 @@ const Home = () => {
     return (
         <div className='agenda-container mt-3'>
             
-
             <div className='container pt-4 pb-4'>  
                 
             </div>
@@ -438,6 +452,17 @@ const Home = () => {
                     <div className='total mb-3'>
                         <h6>Total agendados</h6>
                         <h1>{datos.length}</h1>
+                        <hr style={{color: 'white'}}/>
+                        <div className='row '>
+                            {totalesPordia.length > 0 && 
+                            totalesPordia.map(c=>(
+                                <>
+                                <div className='col-md-12 totalestable' >
+                                    <h6> {c[0]}</h6> <h6>{c[1]}</h6>
+                                </div>
+                                </>
+                            ))}
+                        </div>
                     </div>
                     {showEstados()}                
                     <select
@@ -453,7 +478,7 @@ const Home = () => {
                         </option>
                         {dataArea.length > 0 && 
                         dataArea.map(c =>(
-                        <option  value={c}>
+                        <option key={c} value={c}>
                             {c}
                         </option>
                         ))}
@@ -463,8 +488,8 @@ const Home = () => {
                     
                     <h3 className='text-muted' >Ejecutivos recomendados por hora</h3>
                     <hr className='text-muted'/>
-                    <label className='text-muted' style={{display:'inline-block'}}>Promedio atención ejecutivos por 30 min: </label><nr/>
-                    <input class="form-control" style={{width:'60px',display:'inline-block',marginLeft:'10px'}} type="name" onChange={ChangePacientes} value={coefP} placeholder="Prom. Atenciónes"></input>
+                    <label className='text-muted' style={{display:'inline-block'}}>Promedio atención ejecutivos por 30 min: </label><br/>
+                    <input className="form-control" style={{width:'60px',display:'inline-block',marginLeft:'10px'}} type="name" onChange={ChangePacientes} value={coefP} placeholder="Prom. Atenciónes"></input>
                     <ReactEcharts
                         option = {configChartEjecutivos}
                         

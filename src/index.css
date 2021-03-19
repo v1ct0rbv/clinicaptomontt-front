@@ -67,15 +67,31 @@ body{
 }
 
 .total{
-  height: 100px;
+  height: auto;
   padding: 10px;
-  width: 200px;
+  width: 100%;
   background-color: cadetblue;
   position: relative;
   border-radius: 5px ;
+  margin: auto;
 }
-
+.total tbody{
+  color: white;
+}
+.totalestable h6{
+  display: inline-block;
+  align-content: center;
+  text-align: center;
+  margin-right: 20px;
+}
+.totalestable{
+  text-align: center;
+}
 .total h6{
+  color: white;
+  text-align: center;
+}
+.total h5{
   color: white;
   text-align: center;
 }
