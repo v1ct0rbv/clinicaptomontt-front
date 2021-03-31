@@ -68,12 +68,7 @@ const Agenda = () => {
         })
     }
 
-    var fecha2 = values.fechaFin.split('-') 
-    var fecha1 = values.fechaInicio.split('-') 
-    var x1 = new Date(fecha2[1]+"/"+fecha2[0]+'/'+fecha2[2])
-    var x2 = new Date(fecha1[1]+"/"+fecha1[0]+'/'+fecha1[2])
-    var diferencia = x1.getTime() - x2.getTime()
-    var days = Math.ceil(diferencia / (1000 * 3600 * 24));
+   
 
 
     //Valores unicos de un array
