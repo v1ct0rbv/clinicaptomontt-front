@@ -348,6 +348,20 @@ const Agenda = () => {
             }
         }]
     }
+
+    var options = option = {
+        xAxis: {
+            type: 'category',
+            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [{
+            data: [150, 230, 224, 218, 135, 147, 260],
+            type: 'line'
+        }]
+    };
     return (
         <div className='agenda-container mt-3'>
             <div className='total '>
@@ -399,6 +413,13 @@ const Agenda = () => {
                 <div className='col-md-9 mt-0 pb-5 mb-5 canvas-container' style={{textAlign:'center'}}>
                     <ReactEcharts
                         option = {configChart}
+                        
+                    />
+                </div>
+                <div className='col-md-9 mt-0 pb-5 mb-5 canvas-container'>
+                        
+                    <ReactEcharts
+                        option = {options}
                         
                     />
                 </div>
