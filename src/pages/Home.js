@@ -1,5 +1,5 @@
 import React,{useEffect,useState} from 'react'
-import {scrapingDatos,getAgendados} from '../functions/agenda'
+import {scrapingDatos,getAgendados,createAgendados} from '../functions/agenda'
 import ScrapingForm from '../components/forms/ScrapingForm'
 import Spinner from '../img/loader2.gif'
 import {toast} from 'react-toastify'
@@ -19,8 +19,15 @@ const consultaState = {
     estado:["Confirmado","Atendido ","Presentado","Citado"]
 }
 
+const initialState = {
+    datos:[],
+    fechas:[],
+    horas:[]
+}
+
 const Home = () => {
 
+    const [agenda,setAgenda] = useState(initialState)
     const [values,setValues] = useState(scrapingData)
     const [agendados,setAgendados] = useState([])
     const [loading,setLoading] = useState(false)
@@ -50,7 +57,7 @@ const Home = () => {
     const onSubmit = (e) =>{    
         e.preventDefault()
         setLoading(true)
-        scrapingDatos(values.user,values.password,values.fechaInicio,values.fechaFin,days)
+        scrapingDatos(values.user,values.password,values.fechaInicio,values.fechaFin)
         .then(res => {
             setLoading(false)
             toast.success(`Datos cargados`)
@@ -63,12 +70,6 @@ const Home = () => {
         })
     }
 
-    var fecha2 = values.fechaFin.split('-') 
-    var fecha1 = values.fechaInicio.split('-') 
-    var x1 = new Date(fecha2[1]+"/"+fecha2[0]+'/'+fecha2[2])
-    var x2 = new Date(fecha1[1]+"/"+fecha1[0]+'/'+fecha1[2])
-    var diferencia = x1.getTime() - x2.getTime()
-    var days = Math.ceil(diferencia / (1000 * 3600 * 24));
 
 
     //Valores unicos de un array
@@ -79,7 +80,7 @@ const Home = () => {
     
     //variables eje x
     var fechasP = uniqueValues(agendados.map(c =>{
-        return c['Fecha desde']
+        return c['Fecha']
     }))
     
 
@@ -98,7 +99,7 @@ const Home = () => {
     }
     //areas agendados
     var dataArea = uniqueValues(agendados.map(c =>{
-        return c['Área']
+        return c['Area']
     }))
 
     //estados agendados
@@ -109,15 +110,14 @@ const Home = () => {
     //Obtener dia y hora de cada variable
     var datos = agendados.filter(
     function(s){
-        return estado.indexOf(s['Estado']) !== -1 && s['Área'].includes(tipoConsulta)
+        return estado.indexOf(s['Estado']) !== -1 && s['Area'].includes(tipoConsulta)
     }
-    
     ).map(c => {
 
-            var hr = c['Hora desde'].substring(0,2)
-            var min = c['Hora desde'].slice(-2)
+            var hr = c['Hora'].substring(0,2)
+            var min = c['Hora'].slice(-2)
             
-            var x = isInPosition(c['Fecha desde'],fechasP)
+            var x = isInPosition(c['Fecha'],fechasP)
             var y=0
             if(hr === '08' && Number(min)<30){
                 y = isInPosition('08:00',hours)
@@ -430,15 +430,14 @@ const Home = () => {
     const ChangePacientes = (e) =>{
         setCoefP(e.target.value)
     }
+
     return (
         <div className='agenda-container mt-3'>
-            
             <div className='container pt-4 pb-4'>  
                 
             </div>
             <div className='row'>
                 <div className='col-md-12'>
-                    
                 <h1 className='text-muted'>Agendados Clinica Puerto Montt</h1>
                 <hr/>
                 </div>
