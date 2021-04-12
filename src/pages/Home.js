@@ -1,5 +1,5 @@
 import React,{useEffect,useState} from 'react'
-import {scrapingDatos,getAgendados,createAgendados} from '../functions/agenda'
+import {scrapingDatos,getAgendados} from '../functions/agenda'
 import ScrapingForm from '../components/forms/ScrapingForm'
 import Spinner from '../img/loader2.gif'
 import {toast} from 'react-toastify'
@@ -19,15 +19,9 @@ const consultaState = {
     estado:["Confirmado","Atendido ","Presentado","Citado"]
 }
 
-const initialState = {
-    datos:[],
-    fechas:[],
-    horas:[]
-}
 
 const Home = () => {
 
-    const [agenda,setAgenda] = useState(initialState)
     const [values,setValues] = useState(scrapingData)
     const [agendados,setAgendados] = useState([])
     const [loading,setLoading] = useState(false)

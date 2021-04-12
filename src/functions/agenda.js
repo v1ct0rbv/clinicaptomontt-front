@@ -7,7 +7,3 @@ export const scrapingDatos = async (user,passoword,fechaInicio,fechaHasta,dif) =
 export const getAgendados = async () => {
     return await axios.get(`${process.env.REACT_APP_API}/scraping-read`)
 }
-
-export const createAgendados = async (agenda) => {
-    return await axios.post(`${process.env.REACT_APP_API}/scraping-create`,{agenda})
-}
