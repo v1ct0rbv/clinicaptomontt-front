@@ -10,13 +10,11 @@ import {useDispatch} from 'react-redux'
 
 //using lazy
 import Home from './pages/Home'
+import Agenda from './pages/agenda/Agenda'
+import AgendaDetail from './pages/agenda/AgendaDetail'
 import Header from './components/nav/Header'
 import Login from './pages/auth/Login'
 import UserRoute from './components/route/UserRoute'
-
-
-
-
 
 const App = () => {
 
@@ -48,6 +46,8 @@ const App = () => {
     <Switch>
       <Route exact path='/' component={Login} />
       <UserRoute exact path="/agenda" component={Home} />
+      <UserRoute exact path="/agenda-update" component={Agenda} />
+      <UserRoute exact path="/agenda-detail/:id" component={AgendaDetail} />
     </Switch>
     </Fragment>
   );

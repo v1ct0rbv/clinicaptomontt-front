@@ -3,9 +3,7 @@ import {auth} from '../../firebase'
 import {toast} from 'react-toastify'
 import {Button} from 'antd'
 import { useSelector } from 'react-redux'
-import {  
-    MailOutlined
-} from '@ant-design/icons';
+import Logo from '../../img/logo.png'
 import {useDispatch} from 'react-redux'
 // import {createOrUpdateUser} from '../../functions/auth'
 
@@ -58,6 +56,7 @@ const Login = ({history}) => {
 
     const loginForm = () => (
     <form onSubmit={handleSubmit}>
+        
         <div className='form-group'>
             <input 
             type='email' 
@@ -68,7 +67,7 @@ const Login = ({history}) => {
             placeholder='Correo electronico'
             />
         </div>
-        <div className='form-group mt-2'>
+        <div className='form-group mt-3 mb-5'>
             <input 
             type='password' 
             className='form-control' 
@@ -84,25 +83,27 @@ const Login = ({history}) => {
         className='mb-3 mt-2'
         block
         shape='round'
-        icon={<MailOutlined/>}
         size='large'
         disabled={!email || password.length < 6}
-        >Iniciar Sesión con Email/Contraseña</Button>
+        >Iniciar Sesión</Button>
     </form>)
 
     return (
-        <div className='container p-5'>
-            <div className='row'>
-                <div className='col-md-6 offset-md-3'>
+        <div className='container-login p-5'>
+            <div className='login-card'>
                     {loading ? (
                     <h1 className='text-danger'>Loading ...</h1>
                     ) : (
+                        <>
+                        <img src={Logo} alt='logo' height='100' style={{margin:'auto'}}/>
+                        <h6>Clínica Puerto Montt Agendados</h6>
+                        <hr/>
                         <h1>Iniciar sesión</h1> 
+                        </>
                     )}
                     {loginForm()}
                     
                     
-                </div>
             </div>
         </div>
     )

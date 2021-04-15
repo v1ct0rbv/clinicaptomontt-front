@@ -77,7 +77,7 @@ const ScrapingForm = ({values,setValues,handleChange,onSubmit}) => {
                     <br/>
                     <br/>
                 </div>
-                <button type="submit" className="btn btn-primary" style={{width:'100%'}}>Descargar datos</button>
+                <button type="submit" className="btn btn-primary" style={{width:'100%'}}><i className="fas fa-download"></i> Descargar datos</button>
             </form>
     )
 }

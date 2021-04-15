@@ -1,92 +1,49 @@
 import React,{useEffect,useState} from 'react'
-import {scrapingDatos,getAgendados,createAgendados} from '../../functions/agenda'
-import ScrapingForm from '../../components/forms/ScrapingForm'
+import {listAgendados,readAgenda,removeAgenda} from '../../functions/agenda'
+import {Link} from 'react-router-dom'
+
 import Spinner from '../../img/loader2.gif'
 import {toast} from 'react-toastify'
 import ReactEcharts from "echarts-for-react";
-import { Select } from 'antd';
+import {Checkbox } from 'antd'
 
 
-const scrapingData = {
-    user:'hgoringpm',
-    password:'agenda2020.',
-    fechaInicio:'',
-    fechaFin:''
-}
-const { Option } = Select;
+
 const consultaState = {
     tipoConsulta:'CONSULTA MÉDICA PRESENCIAL',
     estado:["Confirmado","Atendido ","Presentado","Citado"]
 }
 
-const agendaCreateDatos = {
-    fechas:'',
-    datos:[]
-}
 
-const Agenda = ({history}) => {
-    const [agendadosCreate,setAgendadosCreate] = useState(agendaCreateDatos)
-    const [values,setValues] = useState(scrapingData)
+
+
+const AgendaDetail = ({match}) => {
+
+    const [agendados2,setAgendados2] = useState([])
     const [agendados,setAgendados] = useState([])
     const [loading,setLoading] = useState(false)
-    const [loadingDatos,setLoadingDatos] = useState(false)
     const [consulta,setConsulta] = useState(consultaState)
-
+    const [coefP,setCoefP] = useState(6)
     const {tipoConsulta,estado} = consulta
+
+
+    
+    const {id} = match.params
 
     useEffect(() =>{
         loadAgendados()
     },[])
 
-    const loadAgendados = () => {
-        setLoadingDatos(true)
-        getAgendados()
-        .then(res =>{
-            setAgendados(res.data)
-            const uniqueValues = (array) => {
-                return [...new Set(array)]
-            }
-            //variables eje x
-            var fechasP = uniqueValues(res.data.map(c =>{
-                return c['Fecha']
-            }))
-            let first = fechasP[0]
-            let last = fechasP[fechasP.length-1]
-            let fechasS = first+'/'+last
-            setAgendadosCreate({...agendadosCreate,
-                fechas:fechasS,
-                datos:res.data,
-            })
-            setLoadingDatos(false)
-        }) 
-        .catch(err =>{
-            setLoadingDatos(false)
-            console.log(err)
+
+    const loadAgendados = () =>{
+        readAgenda(id).then(res =>{
+            setAgendados(res.data.datos)
         })
     }
-
-    const handleChange = (e) => {
-    
-        setValues({...values,[e.target.name]: e.target.value})
-    }
-
-    const onSubmit = (e) =>{    
-        e.preventDefault()
-        setLoading(true)
-        scrapingDatos(values.user,values.password,values.fechaInicio,values.fechaFin)
-        .then(res => {
-            setLoading(false)
-            toast.success(`Datos cargados`)
-            loadAgendados()
-            console.log(res.data)
-        })
-        .catch( err=> {
-            setLoading(false)
-            console.log(err)
-        })
-    }
-
    
+
+    
+
 
 
     //Valores unicos de un array
@@ -94,7 +51,7 @@ const Agenda = ({history}) => {
         return [...new Set(array)]
     }
     
-
+    
     //variables eje x
     var fechasP = uniqueValues(agendados.map(c =>{
         return c['Fecha']
@@ -114,13 +71,21 @@ const Agenda = ({history}) => {
             if(x === array[i]) return i
         }
     }
-    
+    //areas agendados
+    var dataArea = uniqueValues(agendados.map(c =>{
+        return c['Area']
+    }))
+
+    //estados agendados
+    var dataEstado = uniqueValues(agendados.map(c=>{
+        return c['Estado']
+    }))
 
     //Obtener dia y hora de cada variable
     var datos = agendados.filter(
-        function(s){
-            return estado.indexOf(s['Estado']) !== -1 && s['Area'].includes(tipoConsulta)
-        }
+    function(s){
+        return estado.indexOf(s['Estado']) !== -1 && s['Area'].includes(tipoConsulta)
+    }
     ).map(c => {
 
             var hr = c['Hora'].substring(0,2)
@@ -251,6 +216,8 @@ const Agenda = ({history}) => {
             if(hr === '22' && Number(min)<30){
                 y = isInPosition('22:00',hours)
                 return x+";"+y
+            }else{
+                return x+";"+y
             }
 
 
@@ -259,7 +226,14 @@ const Agenda = ({history}) => {
     //Calcular numero de pacientes 
     var result = [...datos.reduce( (m, v) => m.set(v, (m.get(v) || 0) + 1), new Map() )];
 
-    //Crear array multidimensional para heatmap
+    //Calcular numero de pacientes y dividirlos por coef ejecutivos atenciones
+    var data2 = result.map(c=>{
+        var xy= c[0].split(';')
+
+        return [Number(xy[0]),Number(xy[1]),Math.ceil(c[1]/coefP)]
+    })
+
+    //Crear array multidimensional para heatmap de numero pacientes
     var data = result.map(c=>{
         var xy= c[0].split(';')
 
@@ -278,13 +252,53 @@ const Agenda = ({history}) => {
     //valor maximo de pacientes
     var max = getCol(data,2)
     var max_array = Number(Math.max.apply(Math,max))
+  
+    var max_array_eje = Number(Math.max.apply(Math,getCol(data2,2)))
+
+
+    //totales por dia
+    var diasIndex = uniqueValues(data.map(c =>{
+        return c[0]
+    }))
+    var count = 0
+    var totalesPordia = diasIndex.map(d=>{
+        var x = Number((data.filter(s => s[0] === d).map(c=>{
+            count = Number(c[2]) + count
+            return count
+        })).slice(-1))
+        var fecha = fechasP[d]
+        count = 0
+        return [fecha,x]
+    })
 
     //data para heatmap
     data = data.map(function (item) {
         return [item[0], item[1], item[2] || '-'];
     });
 
-    
+    //handleChangeSelect
+    const handleChangeSelect = (e) => {
+        setConsulta({...consulta,[e.target.name]: e.target.value})
+    }
+
+    // Consulta estado
+    const showEstados = () => dataEstado.map(c => <div key={c}><Checkbox checked={consulta.estado.includes(c)} onChange={handleCheckEstado} className='pb-2 pl-4 pr-4' value={c}>{c}</Checkbox>
+    <br/>
+    </div>)
+
+    const handleCheckEstado = e =>{
+        let inTheState = [...consulta.estado]
+        let justChecked = e.target.value
+        let foundInTheState = inTheState.indexOf(justChecked)
+
+        //if found return -1
+        if(foundInTheState === -1){
+            inTheState.push(justChecked);
+        } else {
+            inTheState.splice(foundInTheState,1)
+        }
+        setConsulta({...consulta,estado:inTheState})
+    }
 
     //opciones
     var configChart= {
@@ -337,59 +351,128 @@ const Agenda = ({history}) => {
         }]
     }
 
-
-    const onClickSave = () =>{
-        setLoading(true)
-        
-        createAgendados(agendadosCreate)
-        .then(res => {
-            setLoading(false)
-            history.push('/agenda')
-            toast.success(`Agendados guardados exitosamente`)
-        })
-        .catch( err=> {
-            console.log(err)
-            if(err.response.status === 400) toast.error(err.response.data)
-        }
-        )
+    //opciones ejecutivos
+    var configChartEjecutivos= {
+        tooltip: {
+            position: 'top'
+        },
+        grid: {
+            height: 'auto',
+            top: '5%'
+        },
+        xAxis: {
+            type: 'category',
+            data: fechasP,
+            splitArea: {
+                show: true
+            }
+        },
+        yAxis: {
+            type: 'category',
+            data: hours,
+            splitArea: {
+                show: true
+            }
+        },
+        visualMap: {
+            min: 0,
+            max: 10,
+            calculable: true,
+            orient: 'horizontal',
+            left: 'center',
+            bottom: '0%',
+            range:[0,max_array_eje],
+            inRange: {
+                color: ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090", "#fdae61", "#f46d43", "#d73027", "#a50026"]
+              }
+        },
+        series: [{
+            name: 'Pacientes',
+            type: 'heatmap',
+            data: data2,
+            label: {
+                show: true
+            },
+            emphasis: {
+                itemStyle: {
+                    shadowBlur: 10,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+            }
+        }]
     }
+    const ChangePacientes = (e) =>{
+        setCoefP(e.target.value)
+    }
+
+    
     return (
         <div className='agenda-container mt-3'>
-            <div className='total '>
-                <h6>Total agendados</h6>
-                
-                <h1>{datos.length}</h1>
-            </div>
-            
-            <div className='row mt-5'>
+            <Link to='/agenda'><h6 className='text-muted'><i class="fas fa-arrow-left"></i> Volver a agendas</h6></Link>
+            <div className='row'>
+                <div className='col-md-12'>
                 <h1 className='text-muted'>Agendados Clínica Puerto Montt</h1>
                 <hr/>
-                <div className='col-md-3 card mb-5'>
-                    {loading ? (
-                        <div className="loading">
-                            <img  src={Spinner} />
-                            <h4 className='text-muted '>Cargando....</h4>
-                        </div>
-                    ):(
-                        <>
-                        
-                        <h3 className='text-muted mt-5'>Agendados desde {values.fechaInicio} hasta {values.fechaFin}</h3>
-                        <hr/>
-                        <ScrapingForm  values={values} setValues={setValues} handleChange={handleChange} onSubmit={onSubmit}/>
-                        <button className='btn btn-success mt-2' type='button' onClick={onClickSave}><i className="far fa-save"></i> Guardar Datos</button>
-                        </>
-                    )}
                 </div>
                 <div className='col-md-9 mt-0 pb-5 mb-5 canvas-container' style={{textAlign:'center'}}>
                     <ReactEcharts
                         option = {configChart}
+                    />
+                </div>
+                <div className='col-md-3 mb-4 mt-5'>
+                    <div className='total mb-3'>
+                        <h6>Total agendados</h6>
+                        <h1>{datos.length}</h1>
+                        <hr style={{color: 'white'}}/>
+                        <div className='row '>
+                            {totalesPordia.length > 0 && 
+                            totalesPordia.map(c=>(
+                                <>
+                                <div className='col-md-12 totalestable' >
+                                    <h6> {c[0]}</h6> <h6>{c[1]}</h6>
+                                </div>
+                                </>
+                            ))}
+                        </div>
+                    </div>
+                    {showEstados()}                
+                    <select
+                    name='tipoConsulta'
+                    value={tipoConsulta}
+                    className='form-control mt-3'
+                    style={{width:'100%'}}
+                    onChange={handleChangeSelect}
+                    >   
+                        
+                        <option  value=''>
+                            Todo
+                        </option>
+                        {dataArea.length > 0 && 
+                        dataArea.map(c =>(
+                        <option key={c} value={c}>
+                            {c}
+                        </option>
+                        ))}
+                    </select>
+                </div>
+                <div className='col-md-12 mt-0 pb-5 mb-5 canvas-container' style={{textAlign:'left'}}>
+                    
+                    <h3 className='text-muted' >Ejecutivos recomendados por hora</h3>
+                    <hr className='text-muted'/>
+                    <label className='text-muted' style={{display:'inline-block'}}>Promedio atención ejecutivos por 30 min: </label><br/>
+                    <input className="form-control" style={{width:'60px',display:'inline-block',marginLeft:'10px'}} type="name" onChange={ChangePacientes} value={coefP} placeholder="Prom. Atenciónes"></input>
+                    <ReactEcharts
+                        option = {configChartEjecutivos}
                         
                     />
                 </div>
+                <div className='col-md-12 mt-5' style={{height:'100px'}}></div>
+                
+                
             </div>
             
         </div>
     )
 }
 
-export default Agenda
+export default AgendaDetail
